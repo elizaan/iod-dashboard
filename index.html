@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOD Dashboard Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+        .header {
+            background-color: #1a1aff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .container {
+            width: 95%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .row {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+        .image-container {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .image-wrapper {
+            width: 100%;
+            min-height: 300px;
+            height: calc(25vw);
+            max-height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .time-display {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .slider {
+            width: 80%;
+            margin: 10px auto;
+        }
+        .button-group {
+            margin: 15px 0;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 0 5px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #e0e0e0;
+        }
+        .play-mode {
+            margin-top: 15px;
+        }
+        .divider {
+            border-top: 1px solid #eee;
+            margin: 20px 0;
+        }
+        .sub-panels {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .sub-panel {
+            width: 100%;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .time-series-wrapper {
+            width: 100%;
+            min-height: 400px;
+            height: calc(35vw);
+            max-height: 800px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h3, h4 {
+            color: #333;
+        }
+        @media (max-width: 1200px) {
+            .row {
+                flex-direction: column;
+            }
+            .image-wrapper {
+                height: 400px;
+                max-height: 400px;
+            }
+            .time-series-wrapper {
+                height: 500px;
+                max-height: 500px;
+            }
+        }
+        @media (min-width: 1600px) {
+            .image-wrapper {
+                min-height: 400px;
+            }
+            .time-series-wrapper {
+                min-height: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        IOD (Indian Ocean Dipole) Analysis with SST Data Visualizations
+    </div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="image-container">
+                <h3>IOD Region Temperature and DMI Calculations</h3>
+                <div class="image-wrapper">
+                    <img id="iodDmi" src="images/dmi_timeseries.png" alt="IOD Region Temperature and DMI Calculations">
+                </div>
+            </div>
+            <div class="image-container">
+                <h3>Sea Surface Temperature (SST) - Eastern and Western IOD Regions</h3>
+                <div class="image-wrapper">
+                    <img id="iodRegions" src="images/iod_regions.png" alt="IOD Regions">
+                </div>
+            </div>
+            <div class="image-container">
+                <h3>Temperature Contour Visualization (Static)</h3>
+                <div class="image-wrapper">
+                    <img id="iodContourPeak" src="images/sst_contours_6840.png" alt="Temperature Contour Visualization">
+                </div>
+            </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <h2 style="text-align: center;">IOD Region Time Series Viewer</h2>
+        
+        <div class="sub-panels">
+            <div class="sub-panel">
+                <h4>Temperature Contour Visualization (Time Series)</h4>
+                <div class="time-series-wrapper">
+                    <img id="iodContour" src="images/contour/iod_analysis_ts_0.png" alt="Temperature Contour Visualization">
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="time-display" id="timeDisplay">Time: Dec 31, 2019 — 00:00 UTC (Frame 0)</div>
+            
+            <div>
+                <input type="range" min="0" max="431" value="0" class="slider" id="timeSlider">
+            </div>
+            <div>Playback Speed (fps): <span id="speedDisplay">1</span></div>
+            <input type="range" min="1" max="30" value="1" class="slider" id="speedSlider">
+            
+            <div class="button-group">
+                <button id="firstFrame">⏮</button>
+                <button id="prevTen">⏪</button>
+                <button id="prevFrame">⏴</button>
+                <button id="pausePlay">▶</button>
+                <button id="nextFrame">⏵</button>
+                <button id="nextTen">⏩</button>
+                <button id="lastFrame">⏭</button>
+            </div>
+            
+            <div class="play-mode">
+                <label>
+                    <input type="radio" name="playMode" value="once" checked> Once
+                </label>
+                <label>
+                    <input type="radio" name="playMode" value="loop"> Loop
+                </label>
+                <label>
+                    <input type="radio" name="playMode" value="reflect"> Reflect
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const totalFrames = 432; // 10344/24 = 431 (plus 1 for index 0)
+        const baseUrl = './images/'; // Base URL for your images
+        const frameStep = 24; // Images are in intervals of 24
+        
+        // Image paths - updated to match your actual image elements and file structure
+        const imagePaths = {
+            iodRegions: () => `${baseUrl}iod_regions.png`,
+            iodDmi: () => `${baseUrl}dmi_timeseries.png`,
+            iodContourPeak: () => `${baseUrl}sst_contours_6840.png`,
+            iodContour: frame => `${baseUrl}contour/iod_analysis_ts_${frame * frameStep}.png`
+        };
+        
+        // Simulated dates - you'll need to adjust this based on your actual data
+        const startDate = new Date('2019-12-31');
+        const dateStep = 24 * 60 * 60 * 1000; // 1 day in milliseconds
+        
+        // UI elements
+        const timeSlider = document.getElementById('timeSlider');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const pausePlayBtn = document.getElementById('pausePlay');
+        
+        // State variables
+        let currentFrame = 0;
+        let isPlaying = false;
+        let playIntervalId = null;
+        let playbackSpeed = 1; // frames per second
+        let playDirection = 1; // 1 for forward, -1 for backward
+        
+        // Utility functions
+        function formatDate(frame) {
+            const date = new Date(startDate.getTime() + frame * dateStep);
+            return `${date.toLocaleString('default', { month: 'short' })} ${date.getDate()}, ${date.getFullYear()} — ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')} UTC (Frame ${frame})`;
+        }
+        
+        function updateImages(frame) {
+            // Only update the time series image since the others are static
+            document.getElementById('iodContour').src = imagePaths.iodContour(frame);
+            
+            timeDisplay.textContent = `Time: ${formatDate(frame)}`;
+        }
+        
+        function updateFrame(frame) {
+            if (frame < 0) frame = 0;
+            if (frame >= totalFrames) frame = totalFrames - 1;
+            
+            currentFrame = frame;
+            timeSlider.value = frame;
+            updateImages(frame);
+        }
+        
+        function startPlayback() {
+            if (playIntervalId) clearInterval(playIntervalId);
+            isPlaying = true;
+            pausePlayBtn.textContent = "⏸";
+            
+            playIntervalId = setInterval(() => {
+                let nextFrame = currentFrame + playDirection;
+                
+                // Handle playback modes
+                const playMode = document.querySelector('input[name="playMode"]:checked').value;
+                
+                if (nextFrame >= totalFrames) {
+                    if (playMode === 'once') {
+                        nextFrame = totalFrames - 1;
+                        pausePlayback();
+                    } else if (playMode === 'loop') {
+                        nextFrame = 0;
+                    } else if (playMode === 'reflect') {
+                        playDirection = -1;
+                        nextFrame = totalFrames - 2;
+                    }
+                } else if (nextFrame < 0) {
+                    if (playMode === 'reflect') {
+                        playDirection = 1;
+                        nextFrame = 1;
+                    } else {
+                        nextFrame = 0;
+                    }
+                }
+                
+                updateFrame(nextFrame);
+            }, 1000 / playbackSpeed);
+        }
+        
+        function pausePlayback() {
+            if (playIntervalId) clearInterval(playIntervalId);
+            isPlaying = false;
+            pausePlayBtn.textContent = "▶";
+        }
+        
+        function togglePlayPause() {
+            if (isPlaying) {
+                pausePlayback();
+            } else {
+                startPlayback();
+            }
+        }
+        
+        // Event listeners
+        timeSlider.addEventListener('input', () => {
+            updateFrame(parseInt(timeSlider.value));
+        });
+        
+        speedSlider.addEventListener('input', () => {
+            playbackSpeed = parseInt(speedSlider.value);
+            speedDisplay.textContent = playbackSpeed;
+            
+            if (isPlaying) {
+                startPlayback(); // Restart with new speed
+            }
+        });
+        
+        pausePlayBtn.addEventListener('click', togglePlayPause);
+        
+        document.getElementById('firstFrame').addEventListener('click', () => {
+            updateFrame(0);
+        });
+        
+        document.getElementById('lastFrame').addEventListener('click', () => {
+            updateFrame(totalFrames - 1);
+        });
+        
+        document.getElementById('nextFrame').addEventListener('click', () => {
+            updateFrame(currentFrame + 1);
+        });
+        
+        document.getElementById('prevFrame').addEventListener('click', () => {
+            updateFrame(currentFrame - 1);
+        });
+        
+        document.getElementById('nextTen').addEventListener('click', () => {
+            updateFrame(currentFrame + 10);
+        });
+        
+        document.getElementById('prevTen').addEventListener('click', () => {
+            updateFrame(currentFrame - 10);
+        });
+        
+        // Initialize page
+        timeSlider.max = totalFrames - 1;
+        
+        // Initial image update
+        updateFrame(0);
+        
+        // Handle image loading errors
+        document.querySelectorAll('img').forEach(img => {
+            img.onerror = function() {
+                console.log(`Failed to load image: ${this.src}`);
+                // Use a better fallback for missing images
+                this.src = `/api/placeholder/${this.width || 400}/${this.height || 300}`;
+                this.alt = "Image not found";
+                this.style.opacity = "0.5";
+            };
+        });
+    </script>
+</body>
+</html>
