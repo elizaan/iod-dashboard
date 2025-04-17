@@ -8,4 +8,5 @@ __pycache__/
 *.pkl.gz
 *.pkl.bz2
 *.pkl.xz
-*.pkl.zip
+*.pkl.zip.DS_Store
+**/.DS_Store # Block all .DS_Store files in subfolders
