@@ -221,14 +221,15 @@
         // Configuration
         const totalFrames = 432; // 10344/24 = 431 (plus 1 for index 0)
         const baseUrl = './images/'; // Base URL for your images
+        const cdnUrl = 'https://ik.imagekit.io/utah1234/contour/';
         const frameStep = 24; // Images are in intervals of 24
         
         // Image paths - updated to match your actual image elements and file structure
         const imagePaths = {
             iodRegions: () => `${baseUrl}iod_regions.png`,
-            iodDmi: () => `https://raw.githubusercontent.com/elizaan/iod-dashboard/main/images/dmi_timeseries.png`,
+            iodDmi: () => `${baseUrl}dmi_timeseries.png`,
             iodContourPeak: () => `${baseUrl}sst_contours_6840.png`,
-            iodContour: frame => `${baseUrl}contour/iod_analysis_ts_${frame * frameStep}.png`
+            iodContour: frame => `${cdnUrl}iod_analysis_ts_${frame * frameStep}.png`
         };
         
         // Simulated dates - you'll need to adjust this based on your actual data
