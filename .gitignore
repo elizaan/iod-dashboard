@@ -1,1 +1,11 @@
 *.csv
+.DS__Store
+*.DS_Store
+*.ipynb_checkpoints
+__pycache__/
+*.pyc
+*.pkl
+*.pkl.gz
+*.pkl.bz2
+*.pkl.xz
+*.pkl.zip
